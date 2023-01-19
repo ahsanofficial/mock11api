@@ -7,7 +7,7 @@ const signup = async (req, res) => {
     const { email, password, age } = req.body;
     const isUser = await UserModel.findOne({ email })
     if (isUser) {
-        res.status(409).send({ status: false, msg: "User already exists, try logging in" })
+        res.status(200).send({ status: true, msg: "User already exists, try logging in" })
     }
     else {
         bcrypt.hash(password, 5, async function (err, hash) {
@@ -34,7 +34,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email })
     if (!user) {
-        res.status(409).send({ status: false, msg: "Please signup first" })
+        res.status(200).send({ status: false, msg: "Please signup first" })
     }
     else {
         const hash = user.password
