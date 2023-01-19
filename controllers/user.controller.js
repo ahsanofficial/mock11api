@@ -7,12 +7,12 @@ const signup = async (req, res) => {
     const { email, password, age } = req.body;
     const isUser = await UserModel.findOne({ email })
     if (isUser) {
-        res.send({ msg: "User already exists, try logging in" })
+        res.status(409).send({ status: false, msg: "User already exists, try logging in" })
     }
     else {
         bcrypt.hash(password, 5, async function (err, hash) {
             if (err) {
-                res.send({ msg: "Something went wrong, please try again later" })
+                res.status(409).send({ status: false, msg: "Something went wrong, please try again later" })
             }
             const user = new UserModel({
                 email,
@@ -21,10 +21,10 @@ const signup = async (req, res) => {
             })
             try {
                 await user.save()
-                res.send({ msg: "Signup successful" })
+                res.status(200).send({ status: true, msg: "Signup successful" })
             }
             catch (err) {
-                res.send({ msg: "Something went wrong, please try again" })
+                res.status(409).send({ status: false, msg: "Something went wrong, please try again later" })
             }
         });
     }
@@ -34,20 +34,20 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email })
     if (!user) {
-        res.send({ msg: "Please signup first" })
+        res.status(409).send({ status: false, msg: "Please signup first" })
     }
     else {
         const hash = user.password
         bcrypt.compare(password, hash, function (err, result) {
             if (err) {
-                res.send({ msg: "Something went wrong, try again later" })
+                res.status(409).send({ status: false, msg: "Something went wrong, try again later" })
             }
             if (result) {
                 const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-                res.send({ message: "Login Successful", token })
+                res.status(200).send({ status: true, message: "Login Successful", token })
             }
             else {
-                res.send({ msg: "Invalid Credentials" })
+                res.status(409).send({ status: false, msg: "Invalid Credentials" })
             }
         });
     }
